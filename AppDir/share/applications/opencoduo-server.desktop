@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.4
+Type=Application
+Name=Open CoD:UO Dedicated Server
+GenericName=Dedicated Game Server
+Comment=Open-source dedicated server for Call of Duty: United Offensive
+Exec=opencoduo-server
+Icon=opencoduo-server
+Terminal=true
+Categories=Game;ActionGame;
+Keywords=call of duty;united offensive;cod;uo;dedicated;server;multiplayer;

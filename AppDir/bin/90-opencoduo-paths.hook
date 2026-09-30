@@ -1,0 +1,116 @@
+#!/bin/sh
+#
+# Sourced by the generated AppRun. One AppImage ships both the client and the
+# dedicated server, and both load their modules from "<fs_basepath>/uo/" and the
+# retail assets from fs_cdpath. Neither has game data discovery on Linux, so
+# both are passed on the command line.
+#
+# sharun's AppRun picks the binary from ARG0, the name the AppImage was invoked
+# as, so a symlink named opencoduo-server starts the dedicated server. Each
+# binary keeps its own config directory, as it did when they were packaged
+# separately.
+
+_coduo_mode=client
+case ${ARG0##*/} in
+	opencoduo-server) _coduo_mode=server ;;
+esac
+
+if [ "$_coduo_mode" = server ]; then
+	_coduo_data_conf=$CONFIGDIR/coduo_lnxded/data-path
+else
+	_coduo_data_conf=$CONFIGDIR/opencoduo/data-path
+fi
+
+_coduo_has_pk3() {
+	for _pk3 in "$1"/*.pk3; do
+		[ -e "$_pk3" ] && return 0
+	done
+	return 1
+}
+
+_coduo_data_root_ok() {
+	[ -d "$1/main" ] && [ -d "$1/uo" ] &&
+		_coduo_has_pk3 "$1/main" &&
+		_coduo_has_pk3 "$1/uo"
+}
+
+_coduo_steam_data_root() {
+	[ -d "$1/steamapps" ] || return 1
+	_manifest=$1/steamapps/appmanifest_2640.acf
+	[ -f "$_manifest" ] || return 1
+	_installdir=$(sed -n 's/.*"installdir"[[:space:]]*"\([^"]*\)".*/\1/p' \
+		"$_manifest" | head -n 1)
+	[ -n "$_installdir" ] || return 1
+	printf '%s\n' "$1/steamapps/common/$_installdir"
+}
+
+_coduo_steam_library_paths() {
+	[ -f "$1/steamapps/libraryfolders.vdf" ] || return 0
+	sed -n 's/.*"path"[[:space:]]*"\([^"]*\)".*/\1/p' \
+		"$1/steamapps/libraryfolders.vdf"
+}
+
+# an explicit '+set fs_cdpath' from the command line is left alone
+_coduo_user_cdpath=
+for _arg in "$@"; do
+	[ "$_arg" = fs_cdpath ] && _coduo_user_cdpath=1
+done
+
+# the working directory is the retail root, which is how the upstream tarball
+# is meant to be run
+if [ -z "${CODUOMP_DATA_PATH:-}" ] && _coduo_data_root_ok "$PWD"; then
+	CODUOMP_DATA_PATH=$PWD
+fi
+
+if [ -z "${CODUOMP_DATA_PATH:-}" ] && [ -f "$_coduo_data_conf" ]; then
+	CODUOMP_DATA_PATH=$(sed -n '1p' "$_coduo_data_conf")
+fi
+
+if [ -z "${CODUOMP_DATA_PATH:-}" ] && [ -z "$_coduo_user_cdpath" ]; then
+	_coduo_home=${HOST_HOME:-$HOME}
+	# split the library list on newlines only, so paths with spaces survive
+	_coduo_ifs=$IFS
+	IFS='
+'
+	for _steam in \
+		"$_coduo_home/.steam/steam" \
+		"$_coduo_home/.local/share/Steam" \
+		"$_coduo_home/.var/app/com.valvesoftware.Steam/data/Steam"
+	do
+		[ -d "$_steam/steamapps" ] || continue
+		for _lib in $_steam $(_coduo_steam_library_paths "$_steam"); do
+			[ -n "$_lib" ] || continue
+			_candidate=$(_coduo_steam_data_root "$_lib") || continue
+			if _coduo_data_root_ok "$_candidate"; then
+				CODUOMP_DATA_PATH=$_candidate
+				break 2
+			fi
+		done
+	done
+	IFS=$_coduo_ifs
+fi
+
+if [ -z "$_coduo_user_cdpath" ]; then
+	if [ -z "${CODUOMP_DATA_PATH:-}" ]; then
+		err_msg "Call of Duty: United Offensive game data was not found."
+		err_msg "Set CODUOMP_DATA_PATH to a retail install containing main/ and uo/,"
+		err_msg "for example:"
+		err_msg "  CODUOMP_DATA_PATH=\"\$HOME/.steam/steam/steamapps/common/Call of Duty United Offensive\""
+		err_msg "or write that path into '$_coduo_data_conf'"
+		exit 1
+	fi
+	if ! _coduo_data_root_ok "$CODUOMP_DATA_PATH"; then
+		err_msg "'$CODUOMP_DATA_PATH' has no main/ and uo/ pak files!"
+		err_msg "Point CODUOMP_DATA_PATH at the retail installation."
+		exit 1
+	fi
+	mkdir -p "${_coduo_data_conf%/*}" 2>/dev/null || :
+	printf '%s\n' "$CODUOMP_DATA_PATH" >"$_coduo_data_conf" 2>/dev/null || :
+	set -- +set fs_basepath "$APPDIR" \
+		+set fs_cdpath "$CODUOMP_DATA_PATH" "$@"
+else
+	set -- +set fs_basepath "$APPDIR" "$@"
+fi
+
+unset -f _coduo_has_pk3 _coduo_data_root_ok \
+	_coduo_steam_data_root _coduo_steam_library_paths

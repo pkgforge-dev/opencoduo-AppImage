@@ -1,0 +1,4 @@
+dist/
+pkg/
+*.AppImage
+*.AppImage.zsync

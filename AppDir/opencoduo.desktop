@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.4
+Type=Application
+Name=Open CoD:UO
+GenericName=Multiplayer Shooter
+Comment=Open-source client for Call of Duty: United Offensive multiplayer
+Exec=opencoduo-client
+Icon=opencoduo
+Terminal=false
+Categories=Game;ActionGame;
+Keywords=call of duty;united offensive;cod;uo;multiplayer;fps;
+StartupWMClass=opencoduo-client
+PrefersNonDefaultGPU=true
