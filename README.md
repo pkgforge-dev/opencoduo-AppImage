@@ -34,18 +34,18 @@ Self-updater is disabled by default if AppImage managers like [am](https://githu
 
 ## Running the client
 
-The client is the default, so it starts with no arguments:
+The client is the default, so it starts with no arguments or by double clicking:
 
 ```sh
-./Open_CoD_UO-x86_64.AppImage
+./Open_CoD_UO-*-anylinux-x86_64.AppImage
 ```
 
 ## Running the dedicated server
 
-The server is selected by the name the AppImage is invoked as, the same way the [Kate](https://github.com/pkgforge-dev/Kate-AppImage-Enhanced) AppImage ships both `kate` and `kwrite`. Make a symlink named `opencoduo-server` pointing at the AppImage and run that instead:
+The server is selected by the name the AppImage is invoked as. Make a symlink named `opencoduo-server` pointing at the AppImage and run that instead:
 
 ```sh
-ln -s Open_CoD_UO-x86_64.AppImage opencoduo-server
+ln -s Open_CoD_UO-*-anylinux-x86_64.AppImage opencoduo-server
 ./opencoduo-server +set dedicated 2 +exec server.cfg
 ```
 
@@ -74,6 +74,24 @@ CODUOMP_DATA_PATH="$HOME/.steam/steam/steamapps/common/Call of Duty United Offen
 Each binary keeps its own saved path, so they are configured independently: the client writes `~/.config/opencoduo/data-path` and the server writes `~/.config/coduo_lnxded/data-path`. `CODUOMP_DATA_PATH` is the same variable for both, since it is the same game data.
 
 Client configuration, logs, downloads and screenshots live in `~/.local/share/opencoduo` (or `$XDG_DATA_HOME/opencoduo`). Server configuration, logs and screenshots live in `~/.callofduty`. Neither is ever written inside the AppImage.
+
+---
+
+AppImage made using [quick-sharun](https://github.com/pkgforge-dev/Anylinux-AppImages/blob/main/useful-tools/quick-sharun.sh), which makes it extremely easy to turn any binary into a portable package reliably without using containers or similar tricks. 
+
+**This AppImage bundles everything and it should work on any Linux distro, including old and musl-based ones.**
+
+This AppImage doesn't require FUSE to run at all, thanks to the [uruntime](https://github.com/VHSgunzo/uruntime).
+
+This AppImage is also supplied with a self-updater by default, so any updates to this application won't be missed, you will be prompted for permission to check for updates and if agreed you will then be notified when a new update is available.
+
+Self-updater is disabled by default if AppImage managers like [am](https://github.com/ivan-hc/AM), [soar](https://github.com/pkgforge/soar) or [dbin](https://github.com/xplshn/dbin) exist, which manage AppImage updates.
+
+<details>
+  <summary><b><i>raison d'être</i></b></summary>
+    <img src="https://github.com/user-attachments/assets/d40067a6-37d2-4784-927c-2c7f7cc6104b" alt="Inspiration Image">
+  </a>
+</details>
 
 ---
 
