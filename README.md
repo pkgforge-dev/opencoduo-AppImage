@@ -3,7 +3,7 @@
 # Open CoD:UO-AppImage 🐧
 
 [![GitHub Downloads](https://img.shields.io/github/downloads/pkgforge-dev/opencoduo-AppImage/total?logo=github&label=GitHub%20Downloads)](https://github.com/pkgforge-dev/opencoduo-AppImage/releases/latest)
-[![CI Build Status](https://img.shields.io/github/pkgforge-dev/opencoduo-AppImage/actions/workflows/appimage.yml/badge.svg)](https://github.com/pkgforge-dev/opencoduo-AppImage/actions/workflows/appimage.yml)
+[![CI Build Status](https://github.com/pkgforge-dev/opencoduo-AppImage/actions/workflows/appimage.yml/badge.svg)](https://github.com/pkgforge-dev/opencoduo-AppImage/actions/workflows/appimage.yml)
 [![Latest Stable Release](https://img.shields.io/github/v/release/pkgforge-dev/opencoduo-AppImage)](https://github.com/pkgforge-dev/opencoduo-AppImage/releases/latest)
 
 <p align="center">
